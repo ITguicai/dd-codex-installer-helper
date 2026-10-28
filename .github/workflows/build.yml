@@ -1,0 +1,29 @@
+name: Build unsigned Windows helper
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-2022
+    steps:
+      - name: Check out reviewed source
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Compile helper without running it
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          New-Item -ItemType Directory -Force out | Out-Null
+          .\src\BuildHelper.ps1 -OutputPath .\out\DDCodexInstallerHelper.exe
+          Get-FileHash -Algorithm SHA256 .\out\DDCodexInstallerHelper.exe
+          Get-AuthenticodeSignature .\out\DDCodexInstallerHelper.exe | Select-Object Status
+      - name: Save unsigned build artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: dd-codex-helper-unsigned
+          path: out/DDCodexInstallerHelper.exe
+          if-no-files-found: error
+          retention-days: 14

@@ -1,0 +1,9 @@
+out/
+*.exe
+*.pfx
+*.p12
+*.key
+.env
+auth.json
+config.toml
+*.dd-*-backup-*
